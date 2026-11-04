@@ -39,6 +39,6 @@ In `configuration.nix` you can then write `per.<name>`:
 
 ## Adding a package
 
-Create `pkgs/<name>/package.nix` (lowercase name, letters, numbers and hyphens only), starting from `templates/binary-tarball.nix` or `templates/appimage.nix`. The package is discovered automatically: there is no need to edit `flake.nix`. The full procedure is described in [AGENTS.md](AGENTS.md).
+Create `pkgs/<name>/package.nix` (lowercase name, letters, numbers and hyphens only), starting from `templates/binary-tarball.nix` or `templates/appimage.nix`. The package is discovered automatically: there is no need to edit `flake.nix`. If the project publishes several release series (nightlies, launcher, etc.), add `pkgs/<name>/nix-update-args` with one extra nix-update argument per line. The full procedure is described in [AGENTS.md](AGENTS.md).
 
 CI builds only the packages that changed; the weekly workflow updates them with nix-update and opens one pull request per package.
