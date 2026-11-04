@@ -1,5 +1,5 @@
 {
-  description = "I miei pacchetti Nix personali";
+  description = "My personal Nix packages";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 

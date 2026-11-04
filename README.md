@@ -1,10 +1,10 @@
 # nix-packages
 
-Pacchetti Nix personali per `x86_64-linux`, esposti come flake.
+Personal Nix packages for `x86_64-linux`, exposed as a flake.
 
-## Uso da un flake NixOS
+## Usage from a NixOS flake
 
-Aggiungi l'input al flake del tuo sistema:
+Add the input to your system flake:
 
 ```nix
 inputs.nix-packages = {
@@ -13,7 +13,7 @@ inputs.nix-packages = {
 };
 ```
 
-Poi passa i pacchetti come `specialArgs` con nome `per`:
+Then pass the packages as `specialArgs` under the name `per`:
 
 ```nix
 outputs = { self, nixpkgs, nix-packages, ... }: {
@@ -27,18 +27,18 @@ outputs = { self, nixpkgs, nix-packages, ... }: {
 };
 ```
 
-In `configuration.nix` puoi quindi scrivere `per.<nome>`:
+In `configuration.nix` you can then write `per.<name>`:
 
 ```nix
 { pkgs, per, ... }: {
   environment.systemPackages = [
-    per.nome-app
+    per.some-app
   ];
 }
 ```
 
-## Aggiungere un pacchetto
+## Adding a package
 
-Crea `pkgs/<nome>/package.nix` (nome minuscolo, solo lettere, numeri e trattini), partendo da `templates/binary-tarball.nix` o `templates/appimage.nix`. Il pacchetto viene scoperto automaticamente: non serve modificare `flake.nix`. La procedura completa è descritta in [AGENTS.md](AGENTS.md).
+Create `pkgs/<name>/package.nix` (lowercase name, letters, numbers and hyphens only), starting from `templates/binary-tarball.nix` or `templates/appimage.nix`. The package is discovered automatically: there is no need to edit `flake.nix`. The full procedure is described in [AGENTS.md](AGENTS.md).
 
-La CI compila solo i pacchetti modificati; il workflow settimanale li aggiorna con nix-update e apre una pull request per pacchetto.
+CI builds only the packages that changed; the weekly workflow updates them with nix-update and opens one pull request per package.

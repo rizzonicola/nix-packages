@@ -4,15 +4,15 @@
   fetchurl,
   autoPatchelfHook,
   makeWrapper,
-  unzip, # solo se l'archivio è uno .zip, altrimenti rimuovilo
+  unzip, # only if the archive is a .zip, otherwise remove it
 }:
 
 stdenv.mkDerivation (finalAttrs: {
-  pname = "nome-app";
+  pname = "example-app";
   version = "1.2.3";
 
   src = fetchurl {
-    url = "https://github.com/OWNER/REPO/releases/download/v${finalAttrs.version}/nome-app-${finalAttrs.version}-linux-x86_64.tar.gz";
+    url = "https://github.com/OWNER/REPO/releases/download/v${finalAttrs.version}/example-app-${finalAttrs.version}-linux-x86_64.tar.gz";
     hash = lib.fakeHash;
   };
 
@@ -22,24 +22,24 @@ stdenv.mkDerivation (finalAttrs: {
     unzip
   ];
 
-  # librerie che auto-patchelf segnala come mancanti vanno aggiunte qui
+  # libraries reported as missing by auto-patchelf go here
   buildInputs = [ stdenv.cc.cc.lib ];
 
-  # se l'archivio NON ha una cartella radice unica, decommenta:
+  # if the archive does NOT have a single top-level directory, uncomment:
   # sourceRoot = ".";
 
   installPhase = ''
     runHook preInstall
-    install -Dm755 nome-app $out/bin/nome-app
+    install -Dm755 example-app $out/bin/example-app
     runHook postInstall
   '';
 
   meta = {
-    description = "Descrizione breve";
+    description = "Short description";
     homepage = "https://github.com/OWNER/REPO";
-    license = lib.licenses.mit; # lib.licenses.unfree se non è chiara
+    license = lib.licenses.mit; # lib.licenses.unfree if unclear
     platforms = [ "x86_64-linux" ];
-    mainProgram = "nome-app";
+    mainProgram = "example-app";
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
   };
 })

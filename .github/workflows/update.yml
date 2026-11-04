@@ -32,18 +32,18 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - name: Aggiorna
+      - name: Update
         run: nix run nixpkgs#nix-update -- --flake "${{ matrix.package }}"
-      - name: Compila solo questo pacchetto
+      - name: Build only this package
         run: |
           if git diff --quiet; then
-            echo "Nessun aggiornamento"
+            echo "No updates"
           else
             nix build ".#${{ matrix.package }}" --print-build-logs
           fi
       - uses: peter-evans/create-pull-request@v8
         with:
           branch: auto/update-${{ matrix.package }}
-          commit-message: "${{ matrix.package }}: aggiornamento automatico"
-          title: "${{ matrix.package }}: aggiornamento automatico"
+          commit-message: "${{ matrix.package }}: automatic update"
+          title: "${{ matrix.package }}: automatic update"
           delete-branch: true
