@@ -1,0 +1,70 @@
+name: build
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.pick.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: pick
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          all=$(ls pkgs | jq -R . | jq -s -c .)
+          if [ "$EVENT" = "workflow_dispatch" ] || ! changed=$(git diff --name-only "$BASE_SHA" HEAD 2>/dev/null); then
+            echo "packages=$all" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if grep -qE '^(flake.nix|flake.lock|.github/)' <<< "$changed"; then
+            echo "packages=$all" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          picked=$({ grep -oE '^pkgs/[^/]+' <<< "$changed" || true; } | cut -d/ -f2 | sort -u | while read -r p; do if [ -d "pkgs/$p" ]; then echo "$p"; fi; done | jq -R . | jq -s -c .)
+          echo "packages=$picked" >> "$GITHUB_OUTPUT"
+
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - run: nix flake check --no-build
+
+  build:
+    needs: detect
+    if: needs.detect.outputs.packages != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.detect.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - run: nix build ".#${{ matrix.package }}" --print-build-logs
+
+  ok:
+    if: always()
+    needs: [detect, eval, build]
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "detect=${{ needs.detect.result }} eval=${{ needs.eval.result }} build=${{ needs.build.result }}"
+          test "${{ needs.detect.result }}" = "success"
+          test "${{ needs.eval.result }}" = "success"
+          test "${{ needs.build.result }}" != "failure"
+          test "${{ needs.build.result }}" != "cancelled"

@@ -1,0 +1,49 @@
+name: update
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.ls.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: ls
+        run: echo "packages=$(ls pkgs | jq -R . | jq -s -c .)" >> "$GITHUB_OUTPUT"
+
+  update:
+    needs: list
+    if: needs.list.outputs.packages != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.list.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Aggiorna
+        run: nix run nixpkgs#nix-update -- --flake "${{ matrix.package }}"
+      - name: Compila solo questo pacchetto
+        run: |
+          if git diff --quiet; then
+            echo "Nessun aggiornamento"
+          else
+            nix build ".#${{ matrix.package }}" --print-build-logs
+          fi
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          branch: auto/update-${{ matrix.package }}
+          commit-message: "${{ matrix.package }}: aggiornamento automatico"
+          title: "${{ matrix.package }}: aggiornamento automatico"
+          delete-branch: true
