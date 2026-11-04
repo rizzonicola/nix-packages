@@ -33,7 +33,14 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Update
-        run: nix run nixpkgs#nix-update -- --flake "${{ matrix.package }}"
+        run: |
+          package="pkgs/${{ matrix.package }}"
+          if [[ -f "$package/nix-update-args" ]]; then
+            readarray -t args < "$package/nix-update-args"
+            nix run nixpkgs#nix-update -- --flake "${{ matrix.package }}" "${args[@]}"
+          else
+            nix run nixpkgs#nix-update -- --flake "${{ matrix.package }}"
+          fi
       - name: Build only this package
         run: |
           if git diff --quiet; then
