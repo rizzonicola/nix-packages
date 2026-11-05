@@ -42,4 +42,5 @@ The user gives the package name and, usually, the symptom: failing build in CI, 
 - Archive with many files: copy everything to `$out/opt/<name>` and create the command with `makeWrapper`.
 - Stable releases only: if an upstream launcher auto-installs Nightly or pre-release builds, disable that default in the wrapper and document how to install a stable version. Never let a packaged app silently update to an unreleased build.
 - To add, update or repair packages you may commit, push, open pull requests and merge autonomously. Ask me first only if you need to modify `flake.nix`, the workflows, or packages other than the one specified.
+- `fastflowlm` is updated only by hand, following `pkgs/fastflowlm/README.md`; automatic PRs for it must be closed, not merged (`pkgs/fastflowlm/no-auto-update` keeps the weekly workflow away from it).
 - If essential information is missing, ask instead of guessing.
