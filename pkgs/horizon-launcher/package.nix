@@ -70,6 +70,38 @@ stdenvNoCC.mkDerivation (finalAttrs:
 
         # The launcher's optional GameMode toggle
         gamemode
+
+        # Building native mods: before downloading anything the launcher
+        # checks for a C compiler, pkg-config and the development files of
+        # ALSA and libudev, then cargo links against the libraries the game
+        # uses. Runtime outputs carry neither headers, .pc files nor the
+        # unversioned .so symlinks, so their dev outputs are needed too.
+        stdenv.cc
+        pkg-config
+        clang
+        llvmPackages.libclang.lib
+        mold
+        glibc.dev
+        alsa-lib.dev
+        udev.dev
+        libxkbcommon.dev
+        wayland.dev
+        wayland-scanner
+        vulkan-loader.dev
+        fontconfig.dev
+        freetype.dev
+        openssl
+        openssl.dev
+        xorgproto
+        libx11.dev
+        libxcb.dev
+        libxcursor.dev
+        libxfixes
+        libxfixes.dev
+        libxrandr.dev
+        libxrender.dev
+        libxext.dev
+        libxi.dev
       ];
 
       runScript = "${unwrapped}/bin/horizon-launcher";
@@ -81,6 +113,13 @@ stdenvNoCC.mkDerivation (finalAttrs:
       profile = ''
         export HORIZON_LAUNCHER_NO_SELF_UPDATE=1
         export HORIZON_LAUNCHER_DESKTOP_EXEC="''${HORIZON_LAUNCHER_DESKTOP_EXEC:-${finalAttrs.pname}}"
+
+        # Native mod builds use bindgen, which finds libclang through this.
+        export LIBCLANG_PATH=/usr/lib
+
+        # The X11 protocol descriptions (xorgproto) live in share/pkgconfig;
+        # the FHS profile only points pkg-config at lib/pkgconfig.
+        export PKG_CONFIG_PATH="/usr/share/pkgconfig''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
       '';
     };
 
@@ -125,11 +164,11 @@ stdenvNoCC.mkDerivation (finalAttrs:
   in
   {
     pname = "horizon-launcher";
-    version = "0.2.41";
+    version = "0.2.42";
 
     src = fetchurl {
       url = "https://github.com/horizon-rust/horizon/releases/download/launcher@${finalAttrs.version}/horizon-launcher-linux-x86_64.tar.gz";
-      hash = "sha256-dTO1dwkMQcLplh6usWw69+rTvwROWJdgV+mh2MtIqk8=";
+      hash = "sha256-dEDSUZcYJv9zffYbJgb5H5NtBWZEs6i289XCM+epHak=";
     };
 
     dontUnpack = true;
