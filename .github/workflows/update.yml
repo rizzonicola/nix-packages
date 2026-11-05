@@ -16,7 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - id: ls
-        run: echo "packages=$(ls pkgs | jq -R . | jq -s -c .)" >> "$GITHUB_OUTPUT"
+        run: |
+          packages=$(for p in $(ls pkgs); do
+            [ -f "pkgs/$p/no-auto-update" ] || echo "$p"
+          done | jq -R . | jq -s -c .)
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
 
   update:
     needs: list

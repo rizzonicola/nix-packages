@@ -1,0 +1,3 @@
+Presence of this file tells .github/workflows/update.yml not to run nix-update
+on this package. A new version ships new closed NPU binaries and needs an
+injected Cargo.lock, so it is updated by hand: see README.md.
