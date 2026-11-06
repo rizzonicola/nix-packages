@@ -24,13 +24,16 @@ let
     stdenv.cc.cc.lib
   ];
 
+  # Keep a desktop file ID distinct from the Flatpak one
+  # (io.github.scripta.Scripta.desktop), otherwise desktop environments show
+  # only one of the two installations.
   desktopItem = makeDesktopItem {
-    name = "io.github.scripta.Scripta";
+    name = "cc.poppi.scripta";
     desktopName = "Scripta";
     genericName = "Note-taking App";
     comment = "Minimal, Markdown-first note-taking application";
     exec = "scripta %U";
-    icon = "io.github.scripta.Scripta";
+    icon = "cc.poppi.scripta";
     terminal = false;
     categories = [
       "Office"
@@ -42,7 +45,7 @@ let
       "text/plain"
       "inode/directory"
     ];
-    startupWMClass = "scripta";
+    startupWMClass = "io.github.scripta.Scripta";
   };
 
   # The release archive does not contain the desktop icon. Pin it to the
@@ -87,8 +90,12 @@ stdenv.mkDerivation (finalAttrs: {
       --prefix LD_LIBRARY_PATH : $out/opt/scripta/lib \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath runtimeLibs}
 
-    install -Dm644 ${desktopItem}/share/applications/io.github.scripta.Scripta.desktop \
-      $out/share/applications/io.github.scripta.Scripta.desktop
+    install -Dm644 ${desktopItem}/share/applications/cc.poppi.scripta.desktop \
+      $out/share/applications/cc.poppi.scripta.desktop
+    install -Dm644 ${icon} \
+      $out/share/icons/hicolor/512x512/apps/cc.poppi.scripta.png
+    # The binary's internal application ID is still io.github.scripta.Scripta,
+    # so provide the icon under that name too for window/dock association.
     install -Dm644 ${icon} \
       $out/share/icons/hicolor/512x512/apps/io.github.scripta.Scripta.png
 
