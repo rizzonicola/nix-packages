@@ -8,28 +8,39 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: update
+  cancel-in-progress: false
+
 jobs:
-  list:
+  check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
-      packages: ${{ steps.ls.outputs.packages }}
+      packages: ${{ steps.pending.outputs.packages }}
     steps:
       - uses: actions/checkout@v7
-      - id: ls
+      - id: pending
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          packages=$(for p in $(ls pkgs); do
-            [ -f "pkgs/$p/no-auto-update" ] || echo "$p"
-          done | jq -R . | jq -s -c .)
+          packages=$(.github/scripts/pending-updates.sh)
           echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          if [ "$packages" = "[]" ]; then
+            echo "All packages are up to date." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Packages to update: \`$packages\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   update:
-    needs: list
-    if: needs.list.outputs.packages != '[]'
+    needs: check
+    if: needs.check.outputs.packages != '[]'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJSON(needs.list.outputs.packages) }}
+        package: ${{ fromJSON(needs.check.outputs.packages) }}
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
@@ -37,6 +48,8 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           package="pkgs/${{ matrix.package }}"
           if [[ -f "$package/nix-update-args" ]]; then

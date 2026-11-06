@@ -1,6 +1,6 @@
 # AI agent instructions: personal Nix packages repository
 
-Flake with packages for x86_64-linux, on a NixOS machine. Each package lives in `pkgs/<name>/package.nix` and is discovered automatically: do not modify `flake.nix` to add one. CI builds only the packages that changed; a weekly workflow updates them with nix-update and opens one pull request per package.
+Flake with packages for x86_64-linux, on a NixOS machine. Each package lives in `pkgs/<name>/package.nix` and is discovered automatically: do not modify `flake.nix` to add one. CI builds only the packages that changed; a weekly workflow checks the upstream releases with `.github/scripts/pending-updates.sh`, runs nix-update only for the packages that are behind and opens one pull request per package. The check is skipped (and nix-update runs as before) when the package's `src` is not a GitHub release download or nix-update gets arguments such as `--url`.
 
 You have full access to the computer, git and `gh`: complete the work autonomously. If a command is not installed, use it with `nix shell nixpkgs#<package>` or `nix run nixpkgs#<package>`.
 
