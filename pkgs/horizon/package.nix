@@ -38,11 +38,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "horizon";
-  version = "0.2.97";
+  version = "2026.10.19";
 
   src = fetchurl {
     url = "https://github.com/horizon-rust/horizon/releases/download/v${finalAttrs.version}/horizon-linux-x86_64.tar.gz";
-    hash = "sha256-FuYveprJXWvniOks1ftQpWmSbSN4UxpODqOgcze3nBE=";
+    hash = "sha256-1xZ6KoJKoJ6VmtDP/QL5RM791MiAuWApsY/Bgcad9hM=";
   };
 
   nativeBuildInputs = [
