@@ -1,0 +1,19 @@
+--- a/core/constants.py
++++ b/core/constants.py
+@@ -238,6 +238,16 @@
+     """
+     Get the directory containing the program files.
+     """
++    if PLATFORM.startswith(LINUX):
++        # The Nix store is read-only: keep the configuration, the log and the
++        # single-instance lock under the XDG configuration directory instead
++        # of next to the Python sources.
++        app_dir = os.path.join(
++            os.environ.get("XDG_CONFIG_HOME") or get_user_home_directory() + "/.config",
++            "clipcascade",
++        )
++        os.makedirs(app_dir, exist_ok=True)
++        return app_dir
+     if PLATFORM == MACOS:
+         app_dir = os.path.join(
+             get_user_home_directory(), "Library", "Application Support", "ClipCascade"
