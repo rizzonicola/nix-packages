@@ -58,11 +58,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "scripta";
-  version = "1.1.4";
+  version = "1.1.5";
 
   src = fetchurl {
     url = "https://github.com/rizzonicola/Scripta/releases/download/v${finalAttrs.version}/Scripta-linux-x64.tar.gz";
-    hash = "sha256-H4M35IfcWzhLhXfz9cY6y5NSFh6J+2JT6zZtnwpeahE=";
+    hash = "sha256-I4+X62thpXDYKAmtabja24tWt/NLmAbWRnPQJsg+Y0o=";
   };
 
   nativeBuildInputs = [
