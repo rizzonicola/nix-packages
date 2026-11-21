@@ -37,6 +37,12 @@ stdenvNoCC.mkDerivation (finalAttrs:
       version = finalAttrs.version;
       executableName = finalAttrs.pname;
 
+      # The launcher creates a Unix control socket under XDG_RUNTIME_DIR or
+      # /tmp and checks that every ancestor is owned by the user or root.
+      # Inside bwrap's user namespace root-owned paths appear as nobody, so
+      # /run/user/1000 fails; a private /tmp is owned by the user and passes.
+      privateTmp = true;
+
       targetPkgs = pkgs: with pkgs; [
         # Launcher and game windows (winit + wgpu)
         vulkan-loader
