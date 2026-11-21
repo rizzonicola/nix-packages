@@ -164,11 +164,11 @@ stdenvNoCC.mkDerivation (finalAttrs:
   in
   {
     pname = "horizon-launcher";
-    version = "0.2.59";
+    version = "0.2.94";
 
     src = fetchurl {
       url = "https://github.com/horizon-rust/horizon/releases/download/launcher@${finalAttrs.version}/horizon-launcher-linux-x86_64.tar.gz";
-      hash = "sha256-2I+Qn9c+9tDaTmqCxEcke8NznSkaqbbDnmkoOe1h8NQ=";
+      hash = "sha256-Xw0MvHBA8cqBdXWuZkmRiOaDtjwCkeUGzCBkS1gDuC8=";
     };
 
     dontUnpack = true;
